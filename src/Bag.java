@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * A generic bag (multiset) data structure backed by an ArrayList.
@@ -91,13 +92,21 @@ public class Bag<T> {
 
     // distinct()
     // Returns a new Bag containing only one occurrence of each unique item.
-    // Checks each entry against the new bag before adding — skips it if
-    // already present. The original bag is not modified.
+    // Uses a temporary HashSet as a fast lookup structure. HashSet checks
+    // membership in O(1) average time by hashing each element, instead of
+    // scanning the growing distinctBag in O(n) like the original version did.
+    // The original bag is not modified.
     public Bag<T> distinct() {
         Bag<T> distinctBag = new Bag<>();
 
+        // Local to this method only — not a field on the class. Tracks
+        // which items have already been added to distinctBag.
+        HashSet<T> seenItems = new HashSet<>();
+
         for (T item : items) {
-            if (!distinctBag.contains(item)) {
+            // seenItems.add() returns true only if item was NOT already
+            // present, so one call both checks and records it.
+            if (seenItems.add(item)) {
                 distinctBag.add(item);
             }
         }
